@@ -1,6 +1,13 @@
 {
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "NODE_ENV=\"development\" node --watch-path src src/server.js"
+  },
   "dependencies": {
     "@hono/node-server": "1.11.0",
-    "hono": "4.2.7"
+    "@prisma/client": "5.13.0",
+    "hono": "4.2.7",
+    "prisma": "5.13.0"
   }
 }

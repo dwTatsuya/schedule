@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// GitHubアカウント情報
+model User {
+  userId    Int     @id @map("user_id")
+  username  String  @unique @db.VarChar(255) @map("user_name")
+  schedules Schedule[]
+  availabilities Availability[]
+  comments Comment[]
+
+  @@map(name: "users")
+}
+
+model Schedule {
+  scheduleId Int @id @default(autoincrement()) @map("schedule_id")
+  scheduleName String @unique @db.VarChar(255) @map("schedule_name")
+  userId Int @map("user_id")
+  candidates Candidate[]
+  comments  Comment[]
+
+  user User @relation(fields: [userId], references: [userId])
+  @@map(name: "schedules")
+}
+
+model Candidate {
+  candidateId Int @id @default(autoincrement()) @map("cantidate_id")
+  candidateDate DateTime @db.Date @map("candidate_date")
+  scheduleId Int @map("schedule_id")
+  availabilities Availability[]
+
+  schedule Schedule @relation(fields: [scheduleId], references: [scheduleId])
+  @@map("candidates")
+}
+
+model Availability {
+  userId Int @map("user_id")
+  candidateId Int @map("candidate_id")
+  available Available @default(PENDING)
+
+  user User @relation(fields: [userId], references: [userId])
+  candidate Candidate @relation(fields: [candidateId], references: [candidateId])
+  @@unique([userId,candidateId])
+  @@map("availabilities")
+}
+
+enum Available {
+  ATTENDING
+  ABSENT
+  PENDING
+}
+
+model Comment {
+  userId Int @map("user_id")
+  scheduleId Int @map("schedule_id")
+  comment String @db.Text
+
+  user User @relation(fields: [userId], references: [userId])
+  schedule Schedule @relation(fields: [scheduleId], references: [scheduleId])
+
+  @@unique([userId, scheduleId])
+  @@map("comments")
+}
